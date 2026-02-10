@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? 💖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        /* Main card styling */
+        .card {
+            background: white;
+            border-radius: 30px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .question {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        /* Pleading text that appears when user hovers/clicks No */
+        .pleading-text {
+            color: #f5576c;
+            font-size: 1.3rem;
+            font-weight: 600;
+            min-height: 35px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .pleading-text.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Buttons container */
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            min-height: 80px;
+        }
+
+        /* Base button styling */
+        .btn {
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 15px 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Yes button - grows dynamically */
+        .btn-yes {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            transform: scale(1);
+        }
+
+        .btn-yes:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-yes:active {
+            transform: scale(0.98);
+        }
+
+        /* No button - dodges on hover */
+        .btn-no {
+            background: #e0e0e0;
+            color: #666;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .btn-no:hover {
+            background: #d0d0d0;
+        }
+
+        /* Success message (hidden by default) */
+        .success-message {
+            display: none;
+            text-align: center;
+            color: white;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeInScale 0.6s ease forwards;
+        }
+
+        .celebration-text {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 1s ease infinite;
+        }
+
+        .success-message p {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+
+        /* Hearts animation */
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 2rem;
+            animation: floatUp 3s ease-in forwards;
+            opacity: 0;
+        }
+
+        /* Animations */
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(0) rotate(0deg);
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .card {
+                padding: 40px 30px;
+            }
+            
+            .question {
+                font-size: 1.5rem;
+                margin-bottom: 30px;
+            }
+
+            .pleading-text {
+                font-size: 1.1rem;
+                min-height: 30px;
+            }
+            
+            .btn {
+                font-size: 1rem;
+                padding: 12px 24px;
+            }
+            
+            .celebration-text {
+                font-size: 3rem;
+            }
+            
+            .success-message p {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .question {
+                font-size: 1.2rem;
+            }
+
+            .pleading-text {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main card with question and buttons -->
+        <div class="card" id="card">
+            <h1 class="question">Do you want to be my valentine?</h1>
+            <p class="pleading-text" id="pleadingText"></p>
+            <div class="buttons">
+                <button class="btn btn-yes" id="yesBtn">Yes</button>
+                <button class="btn btn-no" id="noBtn">No</button>
+            </div>
+        </div>
+
+        <!-- Success message (hidden initially) -->
+        <div class="success-message" id="successMessage">
+            <h1 class="celebration-text">Yay! 💖</h1>
+            <p>I knew you'd say yes!</p>
+        </div>
+
+        <!-- Hearts animation container -->
+        <div class="hearts-container" id="heartsContainer"></div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const card = document.getElementById('card');
+        const successMessage = document.getElementById('successMessage');
+        const heartsContainer = document.getElementById('heartsContainer');
+        const pleadingText = document.getElementById('pleadingText');
+
+        // Track the current scale of the Yes button
+        let yesScale = 1;
+        const scaleIncrement = 0.2; // How much bigger Yes gets each time
+
+        // Array of pleading messages that cycle through
+        const pleadingMessages = [
+            "Are you sure? 🥺",
+            "Please? 💕",
+            "Pretty please? 🙏",
+            "Pleaseeeee! 💖",
+            "Come on! 😢",
+            "Don't break my heart! 💔",
+            "Think about it... 🤔",
+            "Really? 😭",
+            "One more chance? 🥹",
+            "I'll be sad... 😔",
+            "You're making the Yes button huge! 😅",
+            "Just say yes! 💝"
+        ];
+        let messageIndex = 0;
+
+        // Set initial size of Yes button
+        yesBtn.style.transform = `scale(${yesScale})`;
+
+        // Function to show the next pleading message
+        function showPleadingMessage() {
+            pleadingText.textContent = pleadingMessages[messageIndex];
+            pleadingText.classList.add('show');
+            
+            // Move to next message (loop back to start if at end)
+            messageIndex = (messageIndex + 1) % pleadingMessages.length;
+        }
+
+        // Function to grow the Yes button
+        function growYesButton() {
+            yesScale += scaleIncrement;
+            yesBtn.style.transform = `scale(${yesScale})`;
+        }
+
+        // Function to make No button dodge (move to random position)
+        function dodgeNoButton() {
+            // Get button dimensions and container size
+            const containerRect = card.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
+            
+            // Calculate max movement to keep button in view
+            const maxX = 50; // pixels
+            const maxY = 50;
+            
+            // Random position within range
+            const randomX = (Math.random() - 0.5) * maxX * 2;
+            const randomY = (Math.random() - 0.5) * maxY * 2;
+            
+            // Apply transform to move the button
+            noBtn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+            
+            // Grow Yes button as main effect
+            growYesButton();
+            
+            // Show pleading message
+            showPleadingMessage();
+        }
+
+        // Function to create floating hearts animation
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.textContent = ['💖', '💕', '💗', '💓', '💝'][Math.floor(Math.random() * 5)];
+            
+            // Random horizontal position
+            heart.style.left = Math.random() * 100 + '%';
+            
+            // Random animation delay for staggered effect
+            heart.style.animationDelay = Math.random() * 0.5 + 's';
+            
+            heartsContainer.appendChild(heart);
+            
+            // Remove heart after animation completes
+            setTimeout(() => {
+                heart.remove();
+            }, 3000);
+        }
+
+        // Function to trigger success celebration
+        function celebrate() {
+            // Hide the card
+            card.style.display = 'none';
+            
+            // Show success message
+            successMessage.classList.add('show');
+            
+            // Create multiple hearts over time
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    createHeart();
+                }, i * 100); // Stagger heart creation
+            }
+        }
+
+        // Event listeners
+
+        // Grow Yes button when hovering over No button
+        noBtn.addEventListener('mouseenter', dodgeNoButton);
+
+        // Grow Yes button when clicking No button (user tries to click it)
+        noBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            growYesButton();
+            dodgeNoButton();
+        });
+
+        // Celebrate when Yes is clicked
+        yesBtn.addEventListener('click', celebrate);
+    </script>
+</body>
+</html>
